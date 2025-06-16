@@ -4,13 +4,17 @@ const bodyParser = require('body-parser');
 const OpenAI = require('openai');
 
 const app = express();
-app.use(cors());
+
+// ✅ CORS freischalten für dein Frontend
+app.use(cors({
+  origin: 'https://ki-frontend-jade.vercel.app',
+  methods: ['POST'],
+  allowedHeaders: ['Content-Type'],
+}));
+
 app.use(bodyParser.json());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
+// ⬇️ Beispiel-Route
 app.post('/ask', async (req, res) => {
   const { message } = req.body;
 
@@ -19,23 +23,26 @@ app.post('/ask', async (req, res) => {
   }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: 'Du bist ein hilfreicher Assistent.' },
-        { role: 'user', content: message }
-      ]
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const reply = completion.choices[0].message.content;
+    const chatCompletion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'Du bist ein hilfreicher Assistent.' },
+        { role: 'user', content: message },
+      ],
+    });
+
+    const reply = chatCompletion.choices[0].message.content;
     res.json({ reply });
   } catch (error) {
-    console.error('Fehler bei Anfrage:', error.message);
-    res.status(500).json({ error: 'Interner Fehler.' });
+    console.error('Fehler bei OpenAI:', error.message);
+    res.status(500).json({ error: 'Fehler bei der Verarbeitung.' });
   }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-  console.log(`Bot-Server läuft auf Port ${PORT}`);
+app.listen(10000, () => {
+  console.log('Server läuft auf Port 10000');
 });

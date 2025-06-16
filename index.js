@@ -1,11 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const OpenAI = require('openai');
+const OpenAI = require('openai').default;
 
 const app = express();
 
-// ✅ CORS freischalten für dein Frontend
 app.use(cors({
   origin: 'https://ki-frontend-jade.vercel.app',
   methods: ['POST'],
@@ -14,7 +13,6 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// ⬇️ Beispiel-Route
 app.post('/ask', async (req, res) => {
   const { message } = req.body;
 
